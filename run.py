@@ -31,16 +31,18 @@ class Galaga(pygame.sprite.Sprite):
 class Bullet(pygame.sprite.Sprite):
     """ This class represents the bullet . """
 
-    def __init__(self):
+    def __init__(self, origin):
         # Call the parent class (Sprite) constructor
         super().__init__()
         self.image = pygame.image.load("assets/images/galaga_bullet.png").convert()
-        self.image.fill(BLACK)
+        # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
+        self.rect.x = origin.rect.x
+        self.rect.y = origin.rect.y
 
     def update(self):
         """ Move the bullet. """
-        self.rect.y -= 3
+        self.rect.y -= 12
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -89,18 +91,21 @@ while running:
         if event.type == pygame.QUIT:
             pygame.quit()
             running = False
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            # Fire a bullet if the user clicks the mouse button
-            bullet = Bullet()
-            # Set the bullet so it is where the player is
-            bullet.rect.x = player.rect.x
-            bullet.rect.y = player.rect.y
-            # Add the bullet to the lists
-            all_sprites_list.add(bullet)
-            bullet_list.add(bullet)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                print("space")
+                info = {"origin": player}
+                bullet = Bullet(**info)
+                all_sprites_list.add(bullet)
+                bullet_list.add(bullet)
 
+    screen.fill(BLACK)
+    player.draw(screen)
     player.handle_keys()
+    all_sprites_list.draw(screen)
     all_sprites_list.update()
+
+    # get rid of bullets and collid with enemies
     for bullet in bullet_list:
         enemies_hit_list = pygame.sprite.spritecollide(bullet, e_list, True)
         for enemy in enemies_hit_list:
@@ -112,11 +117,5 @@ while running:
             bullet_list.remove(bullet)
             all_sprites_list.remove(bullet)
 
-    # First, clear the screen to white. Don't put other drawing commands
-    # above this, or they will be erased with this command.
-    screen.fill(BLACK)
-    player.draw(screen)
-    all_sprites_list.draw(screen)
-    # Update the screen with what we've drawn.
     pygame.display.flip()
-    clock.tick(60)
+    clock.tick(120)
