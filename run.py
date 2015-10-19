@@ -53,6 +53,7 @@ class Enemy1(pygame.sprite.Sprite):
         self.originy = originy
         self.left = False
         self.rect.y = originy
+        self.attack = False
 
     def update(self):
         """ attack the player aka galaga """
@@ -67,11 +68,20 @@ class Enemy1(pygame.sprite.Sprite):
         elif abs(self.rect.x - self.originx) == 0:
             self.left = False
 
-        # move down
-        # if self.rect.y < 750:
-        #     self.rect.y += 8
-        # else:
-        #     self.rect.y = 0
+    def make_attack(self):
+        """ attack the player aka galaga """
+        if self.rect.y < 750:
+            if self.left:
+                self.rect.x -= 2
+            else:
+                self.rect.x += 2
+            if abs(self.rect.x - self.originx) == 150:
+                self.left = True
+            elif abs(self.rect.x - self.originx) == 0:
+                self.left = False
+            self.rect.y += 5
+        else:
+            self.rect.y = 0
 
 
 class Enemy2(pygame.sprite.Sprite):
@@ -88,7 +98,7 @@ class Enemy2(pygame.sprite.Sprite):
         self.attack = False
 
     def update(self):
-        """ attack the player aka galaga """
+        """ Moving back and fourth through space """
 
         # move left - right
         if self.left:
@@ -99,11 +109,16 @@ class Enemy2(pygame.sprite.Sprite):
             self.left = True
         elif abs(self.rect.x - self.originx) == 0:
             self.left = False
-
+    
+    def make_attack(self):
+        """ attack the player aka galaga """
+        
         rand = random.randrange(0, 3)
         if rand == 1:
             self.attack = True
-
+        elif rand == 2:
+            self.attack = False
+        
         if self.attack:
             # move down
             if self.rect.y < 750:
@@ -129,7 +144,9 @@ pygame.display.set_caption("Galaga")
 
 # sprite lists
 e_list = pygame.sprite.Group()
+enemies = []
 all_sprites_list = pygame.sprite.Group()
+
 # create player
 player = Galaga()
 bullet_list = pygame.sprite.Group()
@@ -142,7 +159,7 @@ for i in range(6):
     e.originx = e.rect.x
     e_list.add(e)
     all_sprites_list.add(e)
-
+    enemies.append(e)
 positions = [i for i in range(80, 750, 125)]
 for i in range(5):
     e = Enemy2()
@@ -150,7 +167,7 @@ for i in range(5):
     e.originx = e.rect.x
     e_list.add(e)
     all_sprites_list.add(e)
-
+    enemies.append(e)
 positions = [i for i in range(50, 750, 100)]
 for i in range(6):
     e = Enemy1(originy=70)
@@ -158,7 +175,8 @@ for i in range(6):
     e.originx = e.rect.x
     e_list.add(e)
     all_sprites_list.add(e)
-
+    enemies.append(e)
+    
 ## Main Program Loop ##
 while running:
     for event in pygame.event.get():
@@ -179,8 +197,14 @@ while running:
     all_sprites_list.draw(screen)
     all_sprites_list.update()
 
+    # win
     if not len(e_list):
         running = False
+    # lose
+    if pygame.sprite.spritecollide(player, e_list, True):
+        running = False
+    
+    enemies[0].make_attack()
 
     # get rid of bullets and collid with enemies
     for bullet in bullet_list:
