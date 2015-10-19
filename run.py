@@ -56,9 +56,7 @@ class Enemy1(pygame.sprite.Sprite):
         self.attack = False
 
     def update(self):
-        """ attack the player aka galaga """
-
-        # move left - right
+        """ move left - right """
         if self.left:
             self.rect.x -= 1
         else:
@@ -80,8 +78,7 @@ class Enemy1(pygame.sprite.Sprite):
             elif abs(self.rect.x - self.originx) == 0:
                 self.left = False
             self.rect.y += 5
-        else:
-            self.rect.y = 0
+        else: self.rect.y = self.originy
 
 
 class Enemy2(pygame.sprite.Sprite):
@@ -120,12 +117,14 @@ class Enemy2(pygame.sprite.Sprite):
             self.attack = False
         
         if self.attack:
-            # move down
             if self.rect.y < 750:
+                if self.rect.y == 200:
+                    self.rect.x += 100
                 self.rect.y += 8
+                self.rect.x += 5
             else:
                 self.rect.y = 0
-
+                self.rect.x -= 1
 
 pygame.init()
 BLACK = (0, 0, 0)
@@ -141,6 +140,9 @@ screen = pygame.display.set_mode(size)
 # caption and mouse
 pygame.display.set_caption("Galaga")
 # pygame.mouse.set_visible(False)
+pygame.font.init()
+font_path = "assets/fonts/arcade.ttf"
+fontobj = pygame.font.Font(font_path, 32)
 
 # sprite lists
 e_list = pygame.sprite.Group()
@@ -176,7 +178,42 @@ for i in range(6):
     e_list.add(e)
     all_sprites_list.add(e)
     enemies.append(e)
-    
+
+rand_enemy_one = random.randrange(0, 4)
+rand_enemy_two = random.randrange(5, 10)
+
+def start_screen():
+    finished = False
+    while not finished:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = True
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                return
+        screen.fill(BLACK)
+        label = fontobj.render("GALAGA BITCH", 1, (255, 255, 0))
+        screen.blit(label, (300, 200))
+        pygame.display.update()
+        clock.tick(60)
+
+def end_screen():
+    finished = False
+    while not finished:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                finished = True
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                finished = True
+                pygame.quit()
+        screen.fill(BLACK)
+        label = fontobj.render("GAME OVER", 1, (255, 255, 0))
+        screen.blit(label, (300, 200))
+        pygame.display.update()
+        clock.tick(60)
+
+start_screen()
 ## Main Program Loop ##
 while running:
     for event in pygame.event.get():
@@ -199,12 +236,13 @@ while running:
 
     # win
     if not len(e_list):
-        running = False
+        end_screen()
     # lose
     if pygame.sprite.spritecollide(player, e_list, True):
-        running = False
-    
-    enemies[0].make_attack()
+        end_screen()
+        
+    enemies[rand_enemy_one].make_attack()
+    enemies[rand_enemy_two].make_attack()
 
     # get rid of bullets and collid with enemies
     for bullet in bullet_list:
@@ -219,4 +257,4 @@ while running:
             all_sprites_list.remove(bullet)
 
     pygame.display.flip()
-    clock.tick(120)
+    clock.tick(60)
