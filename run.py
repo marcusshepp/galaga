@@ -69,14 +69,14 @@ class Enemy1(pygame.sprite.Sprite):
     def make_attack(self):
         """ attack the player aka galaga """
         if self.rect.y < 750:
-            if self.left:
-                self.rect.x -= 2
-            else:
-                self.rect.x += 2
-            if abs(self.rect.x - self.originx) == 150:
-                self.left = True
-            elif abs(self.rect.x - self.originx) == 0:
-                self.left = False
+            # if self.left:
+            #     self.rect.x -= 2
+            # else:
+            #     self.rect.x += 2
+            # if abs(self.rect.x - self.originx) == 150:
+            #     self.left = True
+            # elif abs(self.rect.x - self.originx) == 0:
+            #     self.left = False
             self.rect.y += 5
         else: self.rect.y = self.originy
 
@@ -123,8 +123,8 @@ class Enemy2(pygame.sprite.Sprite):
                 self.rect.y += 8
                 self.rect.x += 5
             else:
-                self.rect.y = 0
-                self.rect.x -= 1
+                self.rect.y = self.originy
+                self.rect.x = self.originx
 
 pygame.init()
 BLACK = (0, 0, 0)
@@ -214,6 +214,7 @@ def end_screen():
         clock.tick(60)
 
 start_screen()
+attacking_enemies = []
 ## Main Program Loop ##
 while running:
     for event in pygame.event.get():
@@ -240,9 +241,13 @@ while running:
     # lose
     if pygame.sprite.spritecollide(player, e_list, True):
         end_screen()
-        
+    
+    if len(attacking_enemies) == 0:
+        attacking_enemies.append(enemies[rand_enemy_one])
+        attacking_enemies.append(enemies[rand_enemy_two])
     enemies[rand_enemy_one].make_attack()
     enemies[rand_enemy_two].make_attack()
+        
 
     # get rid of bullets and collid with enemies
     for bullet in bullet_list:
