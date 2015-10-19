@@ -16,15 +16,14 @@ class Galaga(pygame.sprite.Sprite):
     def handle_keys(self):
         """ Handles Keys """
         key = pygame.key.get_pressed()
-        dist = 12 # distance moved in 1 frame, try changing it to 5
-        if key[pygame.K_RIGHT]: # right key
-            self.rect.x += dist # move right
-        elif key[pygame.K_LEFT]: # left key
-            self.rect.x -= dist # move left
+        dist = 12
+        if key[pygame.K_RIGHT]:
+            self.rect.x += dist
+        elif key[pygame.K_LEFT]:
+            self.rect.x -= dist
 
     def draw(self, surface):
         """ Draw on surface """
-        # blit yourself at your current position
         surface.blit(self.image, (self.rect.x, self.rect.y))
 
 
@@ -32,10 +31,8 @@ class Bullet(pygame.sprite.Sprite):
     """ This class represents the bullet . """
 
     def __init__(self, origin):
-        # Call the parent class (Sprite) constructor
         super().__init__()
         self.image = pygame.image.load("assets/images/galaga_bullet.png").convert()
-        # self.image.fill(BLACK)
         self.rect = self.image.get_rect()
         self.rect.x = origin.rect.x
         self.rect.y = origin.rect.y
@@ -45,13 +42,35 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y -= 12
 
 
-class Enemy(pygame.sprite.Sprite):
+class Enemy1(pygame.sprite.Sprite):
 
     def __init__(self):
         super().__init__()
         self.image = pygame.image.load("assets/images/enemy1.png").convert()
         self.image.set_colorkey(WHITE)
         self.rect = self.image.get_rect()
+        self.originx = 0
+        self.originy = 0
+        self.left = False
+
+    def update(self):
+        """ attack the player aka galaga """
+
+        # move left - right
+        if self.left:
+            self.rect.x -= 1
+        else:
+            self.rect.x += 1
+        if abs(self.rect.x - self.originx) == 100:
+            self.left = True
+        elif abs(self.rect.x - self.originx) == 0:
+            self.left = False
+
+        # move down
+        # if self.rect.y < 750:
+        #     self.rect.y += 8
+        # else:
+        #     self.rect.y = 0
 
 
 pygame.init()
@@ -78,10 +97,10 @@ bullet_list = pygame.sprite.Group()
 
 # create enemies
 positions = [i for i in range(25, 700, 50)]
-for i in range(14):
-    e = Enemy()
+for i in range(6):
+    e = Enemy1()
     e.rect.x = positions[i]
-    # e.rect.y = positions[i]
+    e.originx = e.rect.x
     e_list.add(e)
     all_sprites_list.add(e)
 
